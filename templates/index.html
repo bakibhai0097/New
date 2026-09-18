@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Shop · Vercel</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="navigateTo('shop')">Shop<span>.</span></div>
+    <nav class="nav-links hidden" id="mainNav">
+      <button class="nav-link active" data-view="shop" onclick="navigateTo('shop')">Shop</button>
+      <button class="nav-link hidden" data-view="admin" id="adminNavLink" onclick="navigateTo('admin')">Admin Panel</button>
+    </nav>
+    <div id="userSection" class="user-badge hidden">
+      <span class="admin-tag hidden" id="adminBadge">Admin</span>
+      <img id="headerAvatar" class="avatar" src="" alt="avatar" />
+      <button id="signOutBtn" class="signout-btn">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="loginView" class="login-card">
+      <h1>Welcome back</h1>
+      <p class="subhead">Sign in with Google to continue</p>
+
+      <div id="g_id_onload"
+           data-client_id="{{ google_client_id }}"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false"></div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="pill"
+           data-theme="outline"
+           data-text="signin_with"
+           data-size="large"
+           data-width="280"></div>
+
+      <div id="fallbackGoogleBtn" class="google-btn-wrapper hidden">
+        <button class="custom-google-btn" id="fakeGoogleBtn">🔵 Sign in with Google (Demo)</button>
+      </div>
+
+      <p class="note"><strong>Demo mode</strong> · Admin: <code>admin@shop.com</code></p>
+    </div>
+
+    <div id="shopView" class="shop-container hidden">
+      <div class="welcome-row">
+        <div class="welcome-text">
+          <h2>Hi, <span id="userName">there</span> 👋</h2>
+          <p>Discover today's picks</p>
+        </div>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <div id="adminView" class="admin-container hidden">
+      <div class="admin-header">
+        <h1>Admin Panel</h1>
+        <p>Manage products and view store insights</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Products</div><div class="stat-value blue" id="statProducts">0</div></div>
+        <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value green" id="statRevenue">$0</div></div>
+        <div class="stat-card"><div class="stat-label">Orders</div><div class="stat-value purple" id="statOrders">0</div></div>
+        <div class="stat-card"><div class="stat-label">Avg. Order</div><div class="stat-value" id="statAvg">$0</div></div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-header">
+          <h2>Products</h2>
+          <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th class="hide-mobile">Description</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <div class="admin-section-header"><h2>Recent Orders</h2></div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Order ID</th><th>Customer</th><th class="hide-mobile">Items</th><th>Total</th><th>Status</th></tr>
+            </thead>
+            <tbody id="adminOrderTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="productModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 id="modalTitle">Add Product</h3>
+      <form id="productForm" onsubmit="saveProduct(event)">
+        <input type="hidden" id="productId" />
+        <input type="hidden" id="productImageData" />
+
+        <div class="form-group">
+          <label for="productName">Product Name</label>
+          <input type="text" id="productName" required placeholder="Wireless Headphones" />
+        </div>
+        <div class="form-group">
+          <label for="productDesc">Description</label>
+          <input type="text" id="productDesc" required placeholder="Short description" />
+        </div>
+
+        <div class="form-group">
+          <label>Product Photo</label>
+          <div class="image-uploader">
+            <div class="image-preview" id="imagePreview"><span class="emoji-fallback">🖼️</span></div>
+            <div class="image-controls">
+              <label class="upload-btn" for="productImageFile">
+                📁 Upload Image
+                <input type="file" id="productImageFile" accept="image/*" style="display:none" onchange="handleImageUpload(event)" />
+              </label>
+              <div class="divider-or">or paste URL</div>
+              <input type="url" id="productImageUrl" placeholder="https://..." oninput="handleImageUrl(this.value)" />
+              <button type="button" class="remove-img-btn" onclick="removeProductImage()">Remove image</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="productEmoji">Emoji Fallback</label>
+          <input type="text" id="productEmoji" required placeholder="🎧" maxlength="4" />
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="productPrice">Price ($)</label>
+            <input type="number" id="productPrice" required min="0" step="0.01" placeholder="89.00" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="productStock">Stock</label>
+            <input type="number" id="productStock" required min="0" step="1" placeholder="10" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeProductModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+  </html>
