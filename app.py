@@ -18,14 +18,13 @@ from vercel_blob import put as blob_put, delete as blob_delete
 # ============================================================
 # CONFIG
 # ============================================================
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_CLIENT_ID = os.environ.get("1053029095117-irrd4i9oqogmeoi25p2kfbu82ibpmtnk.apps.googleusercontent.com", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("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", "")
 GMAIL_REFRESH_TOKEN = os.environ.get("GMAIL_REFRESH_TOKEN", "")
 
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+TELEGRAM_BOT_TOKEN = os.environ.get("8867393965:AAGNB2xfb7vYEmIcglRqulCFQkidZiRwg3I", "")
+TELEGRAM_CHAT_ID = os.environ.get("8747178194", "")
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 ADMIN_EMAILS = [
     e.strip().lower()
