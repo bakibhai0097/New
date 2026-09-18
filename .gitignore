@@ -1,0 +1,7 @@
+.env
+.env.local
+*.pyc
+__pycache__/
+.vercel/
+shop.db
+*.sqlite
